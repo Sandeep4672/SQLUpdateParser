@@ -1,50 +1,66 @@
+/* Header files*/
 %{
 #include <stdio.h>
-#include "update.tab.h"   
+#include <string.h>
+#include <stdlib.h>
+#include "update.tab.h"
 
-int lineno = 1;
+//Function used to print the identified token.
+static void showtoken(const char *t){
+    printf("TOK %-12s \"%s\"\n", t, yytext);
+}
 %}
 
+/*Regular Definitions*/
 DIGIT      [0-9]
 LETTER     [A-Za-z]
-CHAR    [A-Za-z0-9_]
-TEXT1   [^\"\n]
-TEXT2  [^'\n]
+CHAR       [A-Za-z0-9_]
+TEXT1      [^\"\n]
+TEXT2      [^'\n]
 
+/*Rules*/
 %%
 
-[Uu][Pp][Dd][Aa][Tt][Ee]        { return UPDATE; }
-[Ss][Ee][Tt]                    { return SET; }
-[Ww][Hh][Ee][Rr][Ee]            { return WHERE; }
+[Uu][Pp][Dd][Aa][Tt][Ee]        { showtoken("UPDATE"); return UPDATE; }
+[Ss][Ee][Tt]                    { showtoken("SET"); return SET; }
+[Ww][Hh][Ee][Rr][Ee]            { showtoken("WHERE"); return WHERE; }
 
-([Aa][Nn][Dd])|([Oo][Rr])       { return ANDOR; }
+([Aa][Nn][Dd])|([Oo][Rr])       { showtoken("ANDOR"); return ANDOR; }
+[Nn][Uu][Ll][Ll]                {showtoken("NULL");return NULL_T;}
+[Ii][Ss]                        {showtoken("IS");return IS_T;}
+[Nn][Oo][Tt]                    {showtoken("NOT");return NOT_T;}
+[Ii][Nn]                        {showtoken("IN");return IN_T;}
+[Ll][Ii][Kk][Ee]                {showtoken("LIKE");return LIKE;}
+[Bb][Ee][Tt][Ww][Ee][Ee][Nn]    {showtoken("BETWEEN");return BETWEEN;}
 
-\"{TEXT1}+\"                  { return TEXT; }   
-\'{TEXT2}+\'                { return TEXT; }  
 
-{DIGIT}+                        { return NUMBER; }
-"*"                             { return MUL; } 
-"/"                             { return DIV; } 
-"+"                             { return PLUS; } 
-"-"                             { return MINUS; }
-{LETTER}{CHAR}*              { return IDENTIFIER; }
+\"{TEXT1}+\"    { showtoken("TEXT"); yylval.str = strdup(yytext); return TEXT; }
+\'{TEXT2}+\'    { showtoken("TEXT"); yylval.str = strdup(yytext); return TEXT; }
 
-"<="                            { return CONDITION; }
-">="                            { return CONDITION; }
-"=="                            { return CONDITION; }
-"!="                            { return CONDITION; }
-"="                             { return ASSIGN; }
-"<"                             { return CONDITION; }
-">"                             { return CONDITION; }
+({DIGIT}+(\.{DIGIT}*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?  { showtoken("NUMBER"); yylval.str = strdup(yytext); return NUMBER; }
 
-";"                             { return SEMICOLON; }
-","                             { return COMMA; }
+"*"             { showtoken("MUL"); return MUL; }
+"/"             { showtoken("DIV"); return DIV; }
+"+"             { showtoken("PLUS"); return PLUS; }
+"-"             { showtoken("MINUS"); return MINUS; }
 
-(\r\n)|\n                       { lineno++; return NEWLINE; }
+{LETTER}{CHAR}* { showtoken("IDENTIFIER"); yylval.str = strdup(yytext); return IDENTIFIER; }
 
-[ \t\f\v]+                      { /* ignore */ }
+"<="            { showtoken("<="); return CONDITION; }
+">="            { showtoken(">="); return CONDITION; }
+"=="            { showtoken("=="); return CONDITION; }
+"!="            { showtoken("!="); return CONDITION; }
+"="             { showtoken("="); return ASSIGN; }
+"<"             { showtoken("<"); return CONDITION; }
+">"             { showtoken(">"); return CONDITION; }
 
-.                               { return yytext[0]; }
+";"             { showtoken("SEMICOLON"); return SEMICOLON; }
+","             { showtoken("COMMA"); return COMMA; }
+
+(\r\n)|\n       { showtoken("NEWLINE"); return NEWLINE; }
+
+[ \t\f\v]+      { }
+
+.               { printf("TOK CHAR        \"%s\"\n", yytext); return yytext[0]; }
 
 %%
-

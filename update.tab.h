@@ -51,17 +51,35 @@
      NUMBER = 267,
      COMMA = 268,
      NEWLINE = 269,
-     MUL = 270,
-     DIV = 271,
-     PLUS = 272,
-     MINUS = 273
+     IN_T = 270,
+     IS_T = 271,
+     NOT_T = 272,
+     NULL_T = 273,
+     BETWEEN = 274,
+     LIKE = 275,
+     MUL = 276,
+     DIV = 277,
+     PLUS = 278,
+     MINUS = 279
    };
 #endif
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+{
+
+/* Line 1676 of yacc.c  */
+#line 16 "update.y"
+
+    char *str;
+
+
+
+/* Line 1676 of yacc.c  */
+#line 82 "update.tab.h"
+} YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

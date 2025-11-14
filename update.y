@@ -1,68 +1,130 @@
 %{
+/*
+  This parser validates SQL UPDATE statements.
+  It checks the syntax, tokens, operators, WHERE conditions,
+  expressions, and list-based conditions such as IN(...) and IS NULL.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 void parse_error(char *msg);
 int yylex();
 void yyerror(char *s);
 %}
 
+%union {
+    char *str;
+}
+
 %token UPDATE IDENTIFIER SET ASSIGN WHERE ANDOR CONDITION SEMICOLON TEXT NUMBER COMMA NEWLINE
+%token IN_T IS_T NOT_T NULL_T BETWEEN LIKE
 %token MUL DIV PLUS MINUS
+
 %left PLUS MINUS
 %left MUL DIV
 
-
 %%
 
-input_line: upd_stmt { printf("Syntax Correct\n"); return 0; } ;
+/*---------------------------------------------
+  Starting rule: A valid line must be an UPDATE
+----------------------------------------------*/
+input_line:
+      upd_stmt        { printf("Correct Statement\n"); return 0; }
+    ;
 
-upd_stmt: UPDATE table_name set_clause
-        | error { parse_error(" : MISSING KEYWORD \"UPDATE\".\n"); return 1; }
-        ;
+/* UPDATE <table> <set_clause> */
+upd_stmt:
+      UPDATE table_name set_clause
+    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    ;
 
-table_name: IDENTIFIER
-          | error { parse_error(" : Table name is missing\n"); return 1; }
-          ;
+/* Table name must be an identifier */
+table_name:
+      IDENTIFIER
+    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    ;
 
-set_clause: SET assign_list where_clause
-          | SET assign_list terminator NEWLINE
-          | error { parse_error(" : MISSING KEYWORD \"SET\".\n"); return 1; }
-          ;
+/* SET clause with assignment list and optional WHERE */
+set_clause:
+      SET assign_list where_clause
+    | SET assign_list terminator NEWLINE
+    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    ;
 
-assign_list: assignment
-           | assignment COMMA assign_list
-           | error { parse_error(" : Incorrect statement for SET clause\n"); return 1; }
-           ;
+/* One or more assignments, separated by commas */
+assign_list:
+      assignment
+    | assignment COMMA assign_list
+    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    ;
 
-assignment: IDENTIFIER ASSIGN expr
-          ;
+/* column = expression */
+assignment:
+      IDENTIFIER ASSIGN expr
+    ;
 
-where_clause: WHERE cond_expr terminator NEWLINE
-            | error { parse_error(" : MISSING CLAUSE \"WHERE\".\n"); return 1; }
-            ;
+/* WHERE <condition> ; newline */
+where_clause:
+      WHERE cond_expr terminator NEWLINE
+    | error      { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    ;
 
-cond_expr: IDENTIFIER CONDITION IDENTIFIER
-         | IDENTIFIER CONDITION TEXT
-         | IDENTIFIER CONDITION NUMBER
-         | IDENTIFIER CONDITION IDENTIFIER ANDOR cond_expr
-         | IDENTIFIER CONDITION TEXT ANDOR cond_expr
-         | IDENTIFIER CONDITION NUMBER ANDOR cond_expr
-         | NUMBER CONDITION NUMBER
-         | NUMBER CONDITION NUMBER ANDOR cond_expr
-         | IDENTIFIER ASSIGN IDENTIFIER
-         | IDENTIFIER ASSIGN TEXT
-         | IDENTIFIER ASSIGN NUMBER
-         | IDENTIFIER ASSIGN IDENTIFIER ANDOR cond_expr
-         | IDENTIFIER ASSIGN TEXT ANDOR cond_expr
-         | IDENTIFIER ASSIGN NUMBER ANDOR cond_expr
-         | NUMBER ASSIGN NUMBER
-         | NUMBER ASSIGN NUMBER ANDOR cond_expr
-         | error { parse_error(" : Incorrect statement for WHERE clause\n"); return 1; }
-         ;
+/*------------------------------------------------------------
+  Conditions allowed in WHERE:
+    col <op> value
+    col <op> value AND/OR more conditions
+    col IN (val1, val2, ...)
+    col IS [NOT] NULL
+-------------------------------------------------------------*/
+/* boolean expressions: allow parentheses and chaining with AND/OR */
+cond_expr:
+      cond_atom
+    | cond_expr ANDOR cond_atom
+    ;
 
-expr: NUMBER
+/* a single condition unit (can be grouped with parentheses) */
+cond_atom:
+      '(' cond_expr ')'                               
+    | expr compop expr                                
+    | IDENTIFIER opt_not IN_T '(' val_list ')'         
+    | IDENTIFIER IS_T opt_not NULL_T                   
+    | IDENTIFIER IS_T opt_not TEXT                      
+    | IDENTIFIER opt_not LIKE TEXT                      
+    | IDENTIFIER BETWEEN value ANDOR value              
+    | IDENTIFIER NOT_T BETWEEN value ANDOR value     
+    ;
+
+/* comparison operators  */
+compop:
+      CONDITION
+    | ASSIGN
+    ;
+
+/* Optional NOT keyword */
+opt_not:
+      /* empty */
+    | NOT_T
+    ;
+
+/* Values inside IN(...) */
+val_list:
+      value
+    | value COMMA val_list
+    ;
+
+/* A value can be number, text, or identifier */
+value:
+      NUMBER
+    | TEXT
     | IDENTIFIER
+    ;
+
+/* Arithmetic expressions allowed on SET side */
+expr:
+      NUMBER
+    | IDENTIFIER
+    | TEXT
     | expr PLUS expr
     | expr MINUS expr
     | expr MUL expr
@@ -70,21 +132,25 @@ expr: NUMBER
     | '(' expr ')'
     ;
 
-terminator: SEMICOLON
-          | error { parse_error(" : Missing Semicolon \";\"\n"); return 1; }
-          ;
+/* Must end with semicolon */
+terminator:
+      SEMICOLON
+    | error { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    ;
 %%
 
 int yywrap() {
     return 1;
 }
 
+/* Main entry */
 int main() {
-    printf("\nPARSER >> ");
+    printf("\nINPUT >> ");
     yyparse();
     return 0;
 }
 
+/* Error printing functions */
 void parse_error(char *msg) {
     printf("%s", msg);
     return;
