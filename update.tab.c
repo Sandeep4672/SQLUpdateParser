@@ -140,19 +140,7 @@ void yyerror(char *s);
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
-{
-
-/* Line 214 of yacc.c  */
-#line 16 "update.y"
-
-    char *str;
-
-
-
-/* Line 214 of yacc.c  */
-#line 155 "update.tab.c"
-} YYSTYPE;
+typedef int YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -163,7 +151,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 167 "update.tab.c"
+#line 155 "update.tab.c"
 
 #ifdef short
 # undef short
@@ -454,8 +442,8 @@ static const yytype_int8 yyrhs[] =
       -1,     4,    16,    38,    11,    -1,     4,    38,    20,    11,
       -1,     4,    19,    40,     8,    40,    -1,     4,    17,    19,
       40,     8,    40,    -1,     9,    -1,     6,    -1,    -1,    17,
-      -1,    40,    -1,    40,    13,    39,    -1,    12,    -1,    11,
-      -1,     4,    -1,    12,    -1,     4,    -1,    11,    -1,    41,
+      -1,    40,    -1,    40,    13,    39,    -1,    12,    -1,     4,
+      -1,    11,    -1,    12,    -1,     4,    -1,    11,    -1,    41,
       23,    41,    -1,    41,    24,    41,    -1,    41,    21,    41,
       -1,    41,    22,    41,    -1,    25,    41,    26,    -1,    10,
       -1,     1,    -1
@@ -464,11 +452,11 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    33,    33,    38,    39,    44,    45,    50,    51,    52,
-      57,    58,    59,    64,    69,    70,    82,    83,    88,    89,
-      90,    91,    92,    93,    94,    95,   100,   101,   105,   107,
-     112,   113,   118,   119,   120,   125,   126,   127,   128,   129,
-     130,   131,   132,   137,   138
+       0,    31,    31,    36,    37,    42,    43,    48,    49,    50,
+      55,    56,    57,    62,    67,    68,    80,    81,    86,    87,
+      88,    89,    90,    91,    92,    93,    98,    99,   103,   105,
+     110,   111,   116,   117,   118,   123,   124,   125,   126,   127,
+     128,   129,   130,   135,   136
 };
 #endif
 
@@ -529,7 +517,7 @@ static const yytype_uint8 yydefact[] =
        0,    16,     0,     8,    11,     0,     0,     0,     0,     0,
       28,    29,     0,     0,     0,     0,    44,     0,     0,    27,
       26,     0,    42,    40,    41,    38,    39,    29,     0,     0,
-      34,    33,    32,     0,     0,     0,    18,    17,    14,    19,
+      33,    34,    32,     0,     0,     0,    18,    17,    14,    19,
       22,    21,     0,     0,     0,    23,     0,    24,     0,    30,
       25,    20,     0,    31
 };
@@ -1423,56 +1411,56 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 33 "update.y"
+#line 31 "update.y"
     { printf("Correct Statement\n"); return 0; ;}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 39 "update.y"
+#line 37 "update.y"
     { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; ;}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 45 "update.y"
+#line 43 "update.y"
     { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; ;}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 52 "update.y"
+#line 50 "update.y"
     { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; ;}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 59 "update.y"
+#line 57 "update.y"
     { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; ;}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 70 "update.y"
+#line 68 "update.y"
     { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; ;}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 138 "update.y"
+#line 136 "update.y"
     { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1476 "update.tab.c"
+#line 1464 "update.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1684,7 +1672,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 140 "update.y"
+#line 138 "update.y"
 
 
 int yywrap() {

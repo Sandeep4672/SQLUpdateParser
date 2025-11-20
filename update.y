@@ -13,9 +13,7 @@ int yylex();
 void yyerror(char *s);
 %}
 
-%union {
-    char *str;
-}
+
 
 %token UPDATE IDENTIFIER SET ASSIGN WHERE ANDOR CONDITION SEMICOLON TEXT NUMBER COMMA NEWLINE
 %token IN_T IS_T NOT_T NULL_T BETWEEN LIKE
@@ -116,8 +114,8 @@ val_list:
 /* A value can be number, text, or identifier */
 value:
       NUMBER
-    | TEXT
     | IDENTIFIER
+    | TEXT
     ;
 
 /* Arithmetic expressions allowed on SET side */

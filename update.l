@@ -34,17 +34,17 @@ TEXT2      [^'\n]
 [Bb][Ee][Tt][Ww][Ee][Ee][Nn]    {showtoken("BETWEEN");return BETWEEN;}
 
 
-\"{TEXT1}+\"    { showtoken("TEXT"); yylval.str = strdup(yytext); return TEXT; }
-\'{TEXT2}+\'    { showtoken("TEXT"); yylval.str = strdup(yytext); return TEXT; }
+\"{TEXT1}+\"    { showtoken("TEXT");  return TEXT; }
+\'{TEXT2}+\'    { showtoken("TEXT");  return TEXT; }
 
-({DIGIT}+(\.{DIGIT}*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?  { showtoken("NUMBER"); yylval.str = strdup(yytext); return NUMBER; }
+({DIGIT}+(\.{DIGIT}*)?|\.[0-9]+)([Ee][+-]?[0-9]+)?  { showtoken("NUMBER");  return NUMBER; }
 
 "*"             { showtoken("MUL"); return MUL; }
 "/"             { showtoken("DIV"); return DIV; }
 "+"             { showtoken("PLUS"); return PLUS; }
 "-"             { showtoken("MINUS"); return MINUS; }
 
-{LETTER}{CHAR}* { showtoken("IDENTIFIER"); yylval.str = strdup(yytext); return IDENTIFIER; }
+{LETTER}{CHAR}* { showtoken("IDENTIFIER");  return IDENTIFIER; }
 
 "<="            { showtoken("<="); return CONDITION; }
 ">="            { showtoken(">="); return CONDITION; }
@@ -57,9 +57,9 @@ TEXT2      [^'\n]
 ";"             { showtoken("SEMICOLON"); return SEMICOLON; }
 ","             { showtoken("COMMA"); return COMMA; }
 
-(\r\n)|\n       { showtoken("NEWLINE"); return NEWLINE; }
+\n       { showtoken("NEWLINE"); return NEWLINE; }
 
-[ \t\f\v]+      { }
+[ \t]+      { }
 
 .               { printf("TOK CHAR        \"%s\"\n", yytext); return yytext[0]; }
 
