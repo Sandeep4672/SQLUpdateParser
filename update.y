@@ -34,20 +34,20 @@ input_line:
 /* UPDATE <table> <set_clause> */
 upd_stmt:
       UPDATE table_name set_clause
-    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error           { parse_error("UPDATE STATEMENT MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /* Table name must be an identifier */
 table_name:
       IDENTIFIER
-    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error           { parse_error("TABLE_NAME MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /* SET clause with assignment list and optional WHERE */
 set_clause:
       SET assign_list where_clause
     | SET assign_list terminator NEWLINE
-    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error           { parse_error("ERROR IN SET STATEMENT : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /* One or more assignments, separated by commas */
@@ -65,7 +65,7 @@ assignment:
 /* WHERE <condition> ; newline */
 where_clause:
       WHERE cond_expr terminator NEWLINE
-    | error      { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error      { parse_error("ERROR IN WHERE CLAUSE : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /*------------------------------------------------------------
@@ -133,7 +133,7 @@ expr:
 /* Must end with semicolon */
 terminator:
       SEMICOLON
-    | error { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error { parse_error("SEMICOLON MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 %%
 
