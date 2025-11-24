@@ -8,19 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-void parse_error(char *msg);
 int yylex();
 void yyerror(char *s);
 %}
 
 
 
-%token UPDATE IDENTIFIER SET ASSIGN WHERE ANDOR CONDITION SEMICOLON TEXT NUMBER COMMA NEWLINE
+%token UPDATE IDENTIFIER SET ASSIGN WHERE AND OR CONDITION SEMICOLON TEXT NUMBER COMMA NEWLINE
 %token IN_T IS_T NOT_T NULL_T BETWEEN LIKE
 %token MUL DIV PLUS MINUS
 
-%left PLUS MINUS
-%left MUL DIV
 
 %%
 
@@ -34,38 +31,41 @@ input_line:
 /* UPDATE <table> <set_clause> */
 upd_stmt:
       UPDATE table_name set_clause
-    | error           { parse_error("UPDATE STATEMENT MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error           { yyerror(": UPDATE STATEMENT MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /* Table name must be an identifier */
 table_name:
       IDENTIFIER
-    | error           { parse_error("TABLE_NAME MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error           { yyerror(": TABLE_NAME MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /* SET clause with assignment list and optional WHERE */
 set_clause:
       SET assign_list where_clause
     | SET assign_list terminator NEWLINE
-    | error           { parse_error("ERROR IN SET STATEMENT : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error           { yyerror(": ERROR IN SET STATEMENT : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /* One or more assignments, separated by commas */
 assign_list:
       assignment
     | assignment COMMA assign_list
-    | error           { parse_error(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error           { yyerror(" : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /* column = expression */
 assignment:
-      IDENTIFIER ASSIGN expr
+      IDENTIFIER ASSIGN expr_text
     ;
-
+expr_text:
+      TEXT
+    | expr
+    ;
 /* WHERE <condition> ; newline */
 where_clause:
       WHERE cond_expr terminator NEWLINE
-    | error      { parse_error("ERROR IN WHERE CLAUSE : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error      { yyerror("ERROR IN WHERE CLAUSE : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 
 /*------------------------------------------------------------
@@ -78,9 +78,12 @@ where_clause:
 /* boolean expressions: allow parentheses and chaining with AND/OR */
 cond_expr:
       cond_atom
-    | cond_expr ANDOR cond_atom
+    | cond_expr andor cond_atom
     ;
-
+andor:
+      AND
+    | OR
+    ;
 /* a single condition unit (can be grouped with parentheses) */
 cond_atom:
       '(' cond_expr ')'                               
@@ -89,9 +92,10 @@ cond_atom:
     | IDENTIFIER IS_T opt_not NULL_T                   
     | IDENTIFIER IS_T opt_not TEXT                      
     | IDENTIFIER opt_not LIKE TEXT                      
-    | IDENTIFIER BETWEEN value ANDOR value              
-    | IDENTIFIER NOT_T BETWEEN value ANDOR value     
+    | IDENTIFIER BETWEEN value AND value              
+    | IDENTIFIER NOT_T BETWEEN value AND value     
     ;
+
 
 /* comparison operators  */
 compop:
@@ -107,15 +111,19 @@ opt_not:
 
 /* Values inside IN(...) */
 val_list:
-      value
-    | value COMMA val_list
+      value_text
+    | value_text COMMA val_list
     ;
 
 /* A value can be number, text, or identifier */
-value:
+value_text:
       NUMBER
     | IDENTIFIER
     | TEXT
+    ;
+value:
+      NUMBER
+    | IDENTIFIER
     ;
 
 /* Arithmetic expressions allowed on SET side */
@@ -133,7 +141,7 @@ expr:
 /* Must end with semicolon */
 terminator:
       SEMICOLON
-    | error { parse_error("SEMICOLON MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
+    | error { yyerror("SEMICOLON MIGHT BE MISSING : PLEASE CHECK YOUR STATEMENT\n"); return 1; }
     ;
 %%
 
@@ -149,11 +157,8 @@ int main() {
 }
 
 /* Error printing functions */
-void parse_error(char *msg) {
-    printf("%s", msg);
-    return;
-}
+
 
 void yyerror(char *s) {
-    parse_error(s);
+    printf("%s", s);
 }

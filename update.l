@@ -25,7 +25,8 @@ TEXT2      [^'\n]
 [Ss][Ee][Tt]                    { showtoken("SET"); return SET; }
 [Ww][Hh][Ee][Rr][Ee]            { showtoken("WHERE"); return WHERE; }
 
-([Aa][Nn][Dd])|([Oo][Rr])       { showtoken("ANDOR"); return ANDOR; }
+([Aa][Nn][Dd])      { showtoken("AND"); return AND; }
+([Oo][Rr])          {showtoken("OR");return OR;}
 [Nn][Uu][Ll][Ll]                {showtoken("NULL");return NULL_T;}
 [Ii][Ss]                        {showtoken("IS");return IS_T;}
 [Nn][Oo][Tt]                    {showtoken("NOT");return NOT_T;}
